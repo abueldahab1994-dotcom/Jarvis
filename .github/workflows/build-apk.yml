@@ -35,7 +35,7 @@ jobs:
 
       - name: Build Debug APK
         working-directory: jarvis-source/sara-android
-        run: gradle assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --warning-mode summary
 
       - name: Upload APK artifact
         if: success()
