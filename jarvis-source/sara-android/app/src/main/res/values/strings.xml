@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="acc_desc">يسمح لـ JARVIS بقراءة الشاشة والضغط والكتابة والتمرير لتنفيذ أوامرك بعد منح الصلاحية.</string>
+</resources>
