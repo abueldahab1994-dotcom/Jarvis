@@ -89,7 +89,7 @@ class JarvisAccessibilityService : AccessibilityService() {
     }
 }
 // البحث عن أي حقل نصي قابل للكتابة والكتابة فيه مباشرة
-fun typeIntoEditable(text: String): String {
+// old_type(text: String): String {
         val root = rootInActiveWindow ?: return "screen not readable"
             val target = findEditableNode(root) ?: return "no editable field found"
                 target.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
@@ -115,7 +115,7 @@ private fun findEditableNode(node: AccessibilityNodeInfo?): AccessibilityNodeInf
 }
 
 // النقر على عنصر عبر النص أو contentDescription
-fun clickByTextOrDesc(label: String): Boolean {
+// old_click(label: String): Boolean {
         val root = rootInActiveWindow ?: return false
             val byText = root.findAccessibilityNodeInfosByText(label)
                 for (n in byText) {
@@ -146,6 +146,44 @@ private fun clickByContentDescRecursive(node: AccessibilityNodeInfo?, label: Str
 
                                     }
                         }
+
+    // old_click(query: String): Boolean {
+        val root = rootInActiveWindow ?: return false
+        fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+            if (node == null) return null
+            val t = node.text?.toString() ?: ""
+            val d = node.contentDescription?.toString() ?: ""
+            if (t.contains(query, ignoreCase = true) || d.contains(query, ignoreCase = true)) return node
+            for (i in 0 until node.childCount) {
+                val found = search(node.getChild(i))
+                if (found != null) return found
+            }
+            return null
+        }
+        var target = search(root)
+        while (target != null && !target.isClickable) {
+            target = target.parent
+        }
+        return target?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) ?: false
+    }
+
+    // old_type(text: String): Boolean {
+        val root = rootInActiveWindow ?: return false
+        fun findEditable(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+            if (node == null) return null
+            if (node.isEditable) return node
+            for (i in 0 until node.childCount) {
+                val found = findEditable(node.getChild(i))
+                if (found != null) return found
+            }
+            return null
+        }
+        val edit = findEditable(root) ?: return false
+        val args = android.os.Bundle().apply {
+            putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+        }
+        return edit.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+    }
 
     fun clickByTextOrDesc(query: String): Boolean {
         val root = rootInActiveWindow ?: return false
