@@ -105,7 +105,7 @@ class JarvisAccessibilityService : AccessibilityService() {
             target = target.parent
         }
         return target?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) ?: false
-    
+
     fun clickByTextOrDesc(query: String): Boolean {
         val root = rootInActiveWindow ?: return false
         fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
@@ -143,16 +143,5 @@ class JarvisAccessibilityService : AccessibilityService() {
         }
         return edit.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, args)
     }
+
 }
-
-
-// البحث عن أي حقل نصي قابل للكتابة والكتابة فيه مباشرة
-
-
-// النقر على عنصر عبر النص أو contentDescription
-
-
-        fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
-
-        fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
-
