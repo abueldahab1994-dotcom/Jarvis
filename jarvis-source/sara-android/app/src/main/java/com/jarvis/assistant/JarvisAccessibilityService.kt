@@ -146,4 +146,42 @@ private fun clickByContentDescRecursive(node: AccessibilityNodeInfo?, label: Str
 
                                     }
                         }
+
+    fun clickByTextOrDesc(query: String): Boolean {
+        val root = rootInActiveWindow ?: return false
+        fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+            if (node == null) return null
+            val t = node.text?.toString() ?: ""
+            val d = node.contentDescription?.toString() ?: ""
+            if (t.contains(query, ignoreCase = true) || d.contains(query, ignoreCase = true)) return node
+            for (i in 0 until node.childCount) {
+                val found = search(node.getChild(i))
+                if (found != null) return found
+            }
+            return null
+        }
+        var target = search(root)
+        while (target != null && !target.isClickable) {
+            target = target.parent
+        }
+        return target?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) ?: false
+    }
+
+    fun typeIntoEditable(text: String): Boolean {
+        val root = rootInActiveWindow ?: return false
+        fun findEditable(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+            if (node == null) return null
+            if (node.isEditable) return node
+            for (i in 0 until node.childCount) {
+                val found = findEditable(node.getChild(i))
+                if (found != null) return found
+            }
+            return null
+        }
+        val edit = findEditable(root) ?: return false
+        val args = android.os.Bundle().apply {
+            putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+        }
+        return edit.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+    }
 }
