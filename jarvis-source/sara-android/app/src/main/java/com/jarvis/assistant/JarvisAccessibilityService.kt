@@ -87,103 +87,6 @@ class JarvisAccessibilityService : AccessibilityService() {
             .build()
         return if (dispatchGesture(g, null, null)) "ok" else "gesture failed"
     }
-}
-// البحث عن أي حقل نصي قابل للكتابة والكتابة فيه مباشرة
-// old_type(text: String): String {
-        val root = rootInActiveWindow ?: return "screen not readable"
-            val target = findEditableNode(root) ?: return "no editable field found"
-                target.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
-                    target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        val args = Bundle().apply {
-                                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
-                        }
-                            return if (target.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
-                                        "typed"
-                            } else {
-                                        "failed to type"
-                            }
-}
-
-private fun findEditableNode(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
-        if (node == null) return null
-            if (node.isEditable) return node
-                for (i in 0 until node.childCount) {
-                            val found = findEditableNode(node.getChild(i))
-                                    if (found != null) return found
-                }
-                    return null
-}
-
-// النقر على عنصر عبر النص أو contentDescription
-// old_click(label: String): Boolean {
-        val root = rootInActiveWindow ?: return false
-            val byText = root.findAccessibilityNodeInfosByText(label)
-                for (n in byText) {
-                            var cur: AccessibilityNodeInfo? = n
-                                    while (cur != null) {
-                                                    if (cur.isClickable && cur.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
-                                                                cur = cur.parent
-                                    }
-                }
-                    return clickByContentDescRecursive(root, label)
-}
-
-private fun clickByContentDescRecursive(node: AccessibilityNodeInfo?, label: String): Boolean {
-        if (node == null) return false
-            val desc = node.contentDescription?.toString() ?: ""
-                if (desc.equals(label, ignoreCase = true) || desc.contains(label, ignoreCase = true)) {
-                            var cur: AccessibilityNodeInfo? = node
-                                    while (cur != null) {
-                                                    if (cur.isClickable && cur.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
-                                                                cur = cur.parent
-                                    }
-                }
-                    for (i in 0 until node.childCount) {
-                                if (clickByContentDescRecursive(node.getChild(i), label)) return true
-                    }
-                        return false
-}
-
-                                    }
-                        }
-
-    // old_click(query: String): Boolean {
-        val root = rootInActiveWindow ?: return false
-        fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
-            if (node == null) return null
-            val t = node.text?.toString() ?: ""
-            val d = node.contentDescription?.toString() ?: ""
-            if (t.contains(query, ignoreCase = true) || d.contains(query, ignoreCase = true)) return node
-            for (i in 0 until node.childCount) {
-                val found = search(node.getChild(i))
-                if (found != null) return found
-            }
-            return null
-        }
-        var target = search(root)
-        while (target != null && !target.isClickable) {
-            target = target.parent
-        }
-        return target?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) ?: false
-    }
-
-    // old_type(text: String): Boolean {
-        val root = rootInActiveWindow ?: return false
-        fun findEditable(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
-            if (node == null) return null
-            if (node.isEditable) return node
-            for (i in 0 until node.childCount) {
-                val found = findEditable(node.getChild(i))
-                if (found != null) return found
-            }
-            return null
-        }
-        val edit = findEditable(root) ?: return false
-        val args = android.os.Bundle().apply {
-            putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
-        }
-        return edit.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, args)
-    }
 
     fun clickByTextOrDesc(query: String): Boolean {
         val root = rootInActiveWindow ?: return false
@@ -217,6 +120,121 @@ private fun clickByContentDescRecursive(node: AccessibilityNodeInfo?, label: Str
             return null
         }
         val edit = findEditable(root) ?: return false
+        val args = android.os.Bundle().apply {
+            putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+        }
+        return edit.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+    }
+}
+// البحث عن أي حقل نصي قابل للكتابة والكتابة فيه مباشرة
+        val root = rootInActiveWindow ?: return "screen not readable"
+                target.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+                    target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        val args = Bundle().apply {
+                                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+                        }
+                            return if (target.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
+                                        "typed"
+                            } else {
+                                        "failed to type"
+                            }
+}
+
+        if (node == null) return null
+            if (node.isEditable) return node
+                for (i in 0 until node.childCount) {
+                                    if (found != null) return found
+                }
+                    return null
+}
+
+// النقر على عنصر عبر النص أو contentDescription
+        val root = rootInActiveWindow ?: return false
+            val byText = root.findAccessibilityNodeInfosByText(label)
+                for (n in byText) {
+                            var cur: AccessibilityNodeInfo? = n
+                                    while (cur != null) {
+                                                    if (cur.isClickable && cur.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+                                                                cur = cur.parent
+                                    }
+                }
+}
+
+        if (node == null) return false
+            val desc = node.contentDescription?.toString() ?: ""
+                if (desc.equals(label, ignoreCase = true) || desc.contains(label, ignoreCase = true)) {
+                            var cur: AccessibilityNodeInfo? = node
+                                    while (cur != null) {
+                                                    if (cur.isClickable && cur.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+                                                                cur = cur.parent
+                                    }
+                }
+                    for (i in 0 until node.childCount) {
+                    }
+                        return false
+}
+
+                                    }
+                        }
+        val root = rootInActiveWindow ?: return false
+        fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+            if (node == null) return null
+            val t = node.text?.toString() ?: ""
+            val d = node.contentDescription?.toString() ?: ""
+            if (t.contains(query, ignoreCase = true) || d.contains(query, ignoreCase = true)) return node
+            for (i in 0 until node.childCount) {
+                val found = search(node.getChild(i))
+                if (found != null) return found
+            }
+            return null
+        }
+        var target = search(root)
+        while (target != null && !target.isClickable) {
+            target = target.parent
+        }
+        return target?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) ?: false
+    }
+        val root = rootInActiveWindow ?: return false
+            if (node == null) return null
+            if (node.isEditable) return node
+            for (i in 0 until node.childCount) {
+                if (found != null) return found
+            }
+            return null
+        }
+        val args = android.os.Bundle().apply {
+            putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+        }
+        return edit.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+    }
+
+        val root = rootInActiveWindow ?: return false
+        fun search(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+            if (node == null) return null
+            val t = node.text?.toString() ?: ""
+            val d = node.contentDescription?.toString() ?: ""
+            if (t.contains(query, ignoreCase = true) || d.contains(query, ignoreCase = true)) return node
+            for (i in 0 until node.childCount) {
+                val found = search(node.getChild(i))
+                if (found != null) return found
+            }
+            return null
+        }
+        var target = search(root)
+        while (target != null && !target.isClickable) {
+            target = target.parent
+        }
+        return target?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) ?: false
+    }
+
+        val root = rootInActiveWindow ?: return false
+            if (node == null) return null
+            if (node.isEditable) return node
+            for (i in 0 until node.childCount) {
+                if (found != null) return found
+            }
+            return null
+        }
         val args = android.os.Bundle().apply {
             putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
         }
